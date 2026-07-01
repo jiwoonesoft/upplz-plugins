@@ -47,7 +47,7 @@ upplz-plugins/                       # 공개 git 저장소 (마켓플레이스)
 
 ```bash
 # 1. 마켓플레이스 추가
-/plugin marketplace add <org>/upplz-plugins
+/plugin marketplace add jiwoonesoft/upplz-plugins
 
 # 2. 플러그인 설치 (설치 중 API Key 입력 프롬프트가 뜬다)
 /plugin install upplz@upplz-tools

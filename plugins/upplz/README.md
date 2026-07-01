@@ -16,7 +16,7 @@
 공개 마켓플레이스 저장소를 통해 설치하면 **스킬 + 원격 MCP 연결 + API 키**가 한 번에 구성된다:
 
 ```bash
-/plugin marketplace add <org>/upplz-plugins
+/plugin marketplace add jiwoonesoft/upplz-plugins
 /plugin install upplz@upplz-tools
 # 설치 중 Upplz API Key 입력(→ keychain 저장) 후:
 /reload-plugins

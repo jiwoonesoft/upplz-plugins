@@ -5,7 +5,7 @@
 ## 설치
 
 ```bash
-/plugin marketplace add <org>/upplz-plugins
+/plugin marketplace add jiwoonesoft/upplz-plugins
 /plugin install upplz@upplz-tools
 # 설치 중 Upplz API Key 입력(→ keychain 저장) 후:
 /reload-plugins
