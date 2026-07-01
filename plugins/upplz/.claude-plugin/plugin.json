@@ -1,0 +1,28 @@
+{
+  "name": "upplz",
+  "version": "0.1.0",
+  "description": "웹 게임/앱을 iOS(베타1: 맥 로컬 빌드)로 빌드·배포하는 upplz 워크플로우 스킬 모음. 온보딩·빌드·메타데이터·아이콘·스크린샷·종합처리. 원격 upplz MCP 서버 연결을 번들한다.",
+  "userConfig": {
+    "api_key": {
+      "type": "string",
+      "title": "Upplz API Key",
+      "description": "upplz 대시보드(설정 URL)에서 발급받은 본인 API 키. 설치 시 안전 저장소에 저장됩니다.",
+      "sensitive": true
+    },
+    "api_endpoint": {
+      "type": "string",
+      "title": "Upplz MCP Endpoint",
+      "description": "upplz MCP 서버 주소. 온보딩(설정 URL/대시보드)에서 안내받은 실제 엔드포인트를 입력하세요.",
+      "default": "https://YOUR-UPPLZ-ENDPOINT"
+    }
+  },
+  "mcpServers": {
+    "upplz": {
+      "type": "streamable-http",
+      "url": "${user_config.api_endpoint}/mcp",
+      "headers": {
+        "Authorization": "Bearer ${user_config.api_key}"
+      }
+    }
+  }
+}
