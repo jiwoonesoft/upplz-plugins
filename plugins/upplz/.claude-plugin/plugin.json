@@ -1,6 +1,6 @@
 {
   "name": "upplz",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "웹 게임/앱을 iOS(베타1: 맥 로컬 빌드)로 빌드·배포하는 upplz 워크플로우 스킬 모음. 온보딩·빌드·메타데이터·아이콘·스크린샷·종합처리. 원격 upplz MCP 서버 연결을 번들한다.",
   "userConfig": {
     "api_key": {

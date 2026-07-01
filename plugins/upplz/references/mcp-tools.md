@@ -20,8 +20,9 @@
 ## 메타데이터/에셋
 - `pull_ios_metadata` / `apply_ios_metadata` — 스토어 메타데이터 pull/apply(로컬 fastlane deliver). scope=listing|screenshots|all.
 - `pull_android_metadata` / `apply_android_metadata` — Android 메타데이터(얇게).
-- `generate_ios_screenshots` — 스크린샷 생성 + frameit(프레임·제목).
-- `generate_app_icon` — 1024 마스터 아이콘 생성 로컬 스크립트(파생 사이즈는 Xcode가 빌드 시 자동 생성). 크레덴셜 무관, 변경 후 재빌드 필요.
+- `generate_ios_screenshots` — 웹앱(web-capacitor) 스크린샷 생성(Playwright) + frameit(프레임·제목).
+- `generate_native_screenshots` — 네이티브 앱(native-ios/flutter/react-native) 스크린샷 생성(xcrun simctl 시뮬레이터, 사용자가 화면 이동 후 Enter로 캡처).
+- `generate_app_icon` — 1024 마스터 아이콘 생성 로컬 스크립트(파생 사이즈는 Xcode가 빌드 시 자동 생성). `iconSource`는 이미지(URL/PNG) 또는 **SVG**(rsvg-convert→magick로 래스터화) — 소스 제공 또는 Claude가 설계한 SVG 생성 택일. 크레덴셜 무관, 변경 후 재빌드 필요.
 
 ## 테스터
 - `add_testers` — 로컬 `fastlane pilot` 테스터 추가 스크립트 + 임시 .p8. 그룹 hasAccessToAllBuilds=true면 기존 테스터에게 새 빌드 자동 노출.

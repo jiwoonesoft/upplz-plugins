@@ -20,7 +20,7 @@ upplz iOS 최초 배포 온보딩. 환경 설치 → Apple 셋업 → 서명 준
 3. `register_bundle_id` — 반환된 로컬 `fastlane produce` 스크립트를 사용자 맥에서 실행(Developer Portal Bundle ID 등록).
 4. (수동) 사용자가 App Store Connect 웹에서 앱 레코드 생성.
 5. `verify_app_record` — 앱 레코드 존재 확인. 없으면 4로.
-6. (선택) `generate_ios_screenshots` / `apply_ios_metadata` — 초기 메타데이터.
+6. (선택) 초기 메타데이터 — 웹 게임이면 `generate_ios_screenshots`, 네이티브 앱이면 `generate_native_screenshots` / `apply_ios_metadata`.
 7. `setup_match_repo` — match 레포 초기화(로컬 스크립트).
 8. `add_provisioning_profile` — Bundle ID용 프로파일 발급(로컬 스크립트). 익스텐션 있으면 각 bundleId마다.
 9. `setup_project` — 로컬 스캐폴드/설정(필요 시).
