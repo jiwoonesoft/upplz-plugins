@@ -23,7 +23,7 @@ projectType으로 캡처 방법을 분기한다:
 1. **시뮬레이터용 빌드(.app)** 준비 — Xcode에서 시뮬레이터 대상 빌드(⌘B) 또는 `xcodebuild -sdk iphonesimulator … build`. upplz 정식 빌드의 기기용 `.ipa`는 스크린샷에 쓸 수 없다(시뮬레이터 `.app` 필요).
 2. `generate_native_screenshots({ bundleId, locale, devices })` — 반환 스크립트를 사용자 맥에서 실행: 시뮬레이터 부팅 → 앱 설치·실행 → **가이드 캡처**(각 화면을 띄우고 Enter). 완전 자동 다중 화면은 fastlane snapshot(UITest 스킴 필요) 권장.
 
-3. (선택) `apply_ios_metadata` scope=screenshots — 스토어 반영. 두 도구 모두 `ios/fastlane/screenshots/<locale>/<device>-<순번>.png` 레이아웃이라 apply 단계는 동일.
+3. (선택) `apply_ios_metadata` scope=screenshots — 스토어 반영. 두 도구 모두 `ios/fastlane/screenshots/<locale>/<device>-<순번>.png` 레이아웃이라 apply 단계는 동일. **네이티브 경로는 Framefile.json이 없으므로 `decorate=false`(프레임 없는 원본)로 반영한다**(web-capacitor는 frameit 합성 시 decorate=true 가능).
 
 ## Verification
 - 스크린샷 파일 생성(`ios/fastlane/screenshots/**`). apply 시 스토어 반영.

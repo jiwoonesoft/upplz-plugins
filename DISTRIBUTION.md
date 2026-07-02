@@ -35,7 +35,7 @@ upplz-plugins/                       # 공개 git 저장소 (마켓플레이스)
       "name": "upplz",
       "source": "./plugins/upplz",
       "description": "온보딩·빌드·메타데이터·아이콘·스크린샷·종합처리 + 원격 MCP 연결 번들",
-      "version": "0.1.0"
+      "version": "0.1.3"
     }
   ]
 }
@@ -71,7 +71,7 @@ upplz-plugins/                       # 공개 git 저장소 (마켓플레이스)
 
 ## ⚠️ MCP 엔드포인트 설정
 
-`plugin.json`의 `api_endpoint` 기본값은 플레이스홀더(`https://YOUR-UPPLZ-ENDPOINT`)다 — **실제 엔드포인트 주소는 공개 저장소에 박지 않는다**(개인/내부 인프라 노출 방지).
+`plugin.json`의 `api_endpoint` 기본값은 플레이스홀더(`https://YOUR-UPPLZ-ENDPOINT`)다 — **실제 엔드포인트 주소는 공개 저장소에 박지 않는다**(개인/내부 인프라 노출 방지). 실제 주소는 별도(로컬 메모리·온보딩 채널)로 관리한다.
 
 - 고객은 설치 시 `userConfig` 프롬프트에서, upplz 온보딩(설정 URL/대시보드)으로 안내받은 **실제 엔드포인트**를 입력한다.
 - 정식/대규모 배포용 **안정적 프로덕션 엔드포인트**(고정 도메인·이중화)가 정해지면 기본값으로 교체할 수 있다. 개인 머신 주소는 공개 기본값으로 두지 않는다.
