@@ -36,7 +36,7 @@ claude --plugin-dir /경로/upplz.git/plugin
 
 ## 연결·인증
 - 플러그인이 원격 upplz MCP 서버 연결을 번들한다(`plugin.json`의 `mcpServers`, Streamable HTTP).
-- 인증: `Authorization: Bearer <API Key>`. API 키는 upplz 대시보드(설정 URL)에서 발급.
+- 인증: `Authorization: Bearer <API Key>`. API 키는 upplz 대시보드 설정 페이지에서 발급.
 - 스킬은 다른 파일을 `${CLAUDE_PLUGIN_ROOT}/references/...` 로 참조한다(플러그인은 캐시에 복사되므로 이 변수 필수).
 
 ## 전제
