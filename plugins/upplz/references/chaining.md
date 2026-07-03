@@ -4,12 +4,21 @@
 
 ## 연속 그래프
 
-- **upplz-onboard** 완료 → 제안: 스크린샷 생성?(upplz-screenshot) / 메타데이터 정리?(upplz-metadata) / 테스터 추가?(add_testers — report_build_result로 uploaded 보고가 끝난 빌드만)
-- **upplz-build** 완료 → 제안: 아이콘 갱신?(upplz-icon) / 스크린샷 갱신?(upplz-screenshot) / 메타데이터 갱신?(upplz-metadata) / 테스터 추가?(add_testers — report_build_result로 uploaded 보고가 끝난 빌드만)
-- **upplz-icon** 완료 → 제안: **재빌드 필요** → upplz-build (아이콘 변경은 바이너리 재빌드 후 반영)
-- **upplz-screenshot** 완료 → 제안: 메타데이터 반영?(apply, upplz-metadata) / 재빌드?(upplz-build)
-- **upplz-metadata** 완료 → 독립 종료(빌드와 무관). 코드 변경이 있으면 upplz-build 제안.
+- **upplz-onboard** 완료 → 제안: 스크린샷 생성?(upplz-screenshot, iOS 전용) / 메타데이터 정리?(upplz-metadata) / 테스터 추가?(add_testers — iOS 전용, report_build_result로 uploaded 보고가 끝난 빌드만)
+- **upplz-build** 완료 → 제안: 아이콘 갱신?(upplz-icon, iOS 전용) / 스크린샷 갱신?(upplz-screenshot, iOS 전용) / 메타데이터 갱신?(upplz-metadata) / 테스터 추가?(add_testers — iOS 전용, report_build_result로 uploaded 보고가 끝난 빌드만)
+- **upplz-icon** 완료 → 제안: **재빌드 필요** → upplz-build (아이콘 변경은 바이너리 재빌드 후 반영, iOS 전용)
+- **upplz-screenshot** 완료 → 제안: 메타데이터 반영?(apply, upplz-metadata) / 재빌드?(upplz-build) — iOS 전용
+- **upplz-metadata** 완료 → 독립 종료(빌드와 무관). 코드 변경이 있으면 upplz-build 제안. Android는 apply_android_metadata만 해당.
 - **upplz-release** → 위 전부를 각 단계 물어보며 순차 진행하는 풀 체인.
+
+## Android 체인 (베타1: 맥 전용)
+
+Android는 `generate_app_icon`/`generate_ios_screenshots`/`generate_native_screenshots`/`add_testers` 대상이 아니다(모두 iOS 전용 도구). Android 체인은 다음으로 좁혀진다:
+
+- **upplz-onboard(Android)** 완료(최초 배포: `setup_project(android)` → `setup_android_keystore` → (사전 안내: Play 개발자 계정/Service Account) → `start_build(android)`로 AAB 생성 → Play Console 앱 생성+최초 AAB 수동 업로드(최초 1회만) → `upload_to_store(android)` → `report_build_result`) → 제안: 메타데이터 정리?(upplz-metadata → `apply_android_metadata`, 선행: `pull_android_metadata`로 기존 값 확인 가능)
+- **upplz-build(Android)** 완료(반복 빌드: `start_build(android)` → `upload_to_store(android)` → `report_build_result`) → 제안: 메타데이터 갱신?(upplz-metadata → `apply_android_metadata`)
+- **upplz-metadata(Android)** 완료 → 독립 종료(빌드와 무관). 코드 변경이 있으면 upplz-build(Android) 제안.
+- **upplz-release(Android)** → 아이콘/스크린샷/테스터 단계는 건너뛰고 메타데이터 → 빌드 → 업로드 → 보고만 순차 진행.
 
 ## 제안 문구 규칙
 
