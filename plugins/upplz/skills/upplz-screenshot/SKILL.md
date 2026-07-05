@@ -29,4 +29,4 @@ projectType으로 캡처 방법을 분기한다:
 - 스크린샷 파일 생성(`ios/fastlane/screenshots/**`). apply 시 스토어 반영.
 
 ## Next
-`${CLAUDE_PLUGIN_ROOT}/references/chaining.md`: 메타데이터 반영?(apply, upplz-metadata) / 재빌드?(upplz-build).
+`${CLAUDE_PLUGIN_ROOT}/references/chaining.md`: 메타데이터 반영?(apply, upplz-metadata) / 재빌드?(upplz-upload-build-only).

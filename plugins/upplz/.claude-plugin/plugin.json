@@ -1,7 +1,7 @@
 {
   "name": "upplz",
-  "version": "0.1.5",
-  "description": "웹 게임/앱을 iOS·Android(베타1: 맥 로컬 빌드/Docker 하네스)로 빌드·배포하는 upplz 워크플로우 스킬 모음. 온보딩·빌드·메타데이터·아이콘·스크린샷·종합처리. 원격 upplz MCP 서버 연결을 번들한다.",
+  "version": "2026.7.1",
+  "description": "웹 게임/앱을 iOS·Android(베타1: 맥 로컬 빌드/Docker 하네스)로 빌드·배포하는 upplz 워크플로우 스킬 모음. 테스트 업로드(빌드만)·출시 업로드(메타·아이콘·스샷 점검 포함)·메타데이터·아이콘·스크린샷. 원격 upplz MCP 서버 연결을 번들한다.",
   "userConfig": {
     "api_key": {
       "type": "string",

@@ -1,14 +1,13 @@
 # upplz Claude Code 플러그인
 
-웹 게임/앱을 iOS로 빌드·배포하는 upplz 워크플로우 스킬 모음(베타1: 맥 로컬 빌드).
+웹 게임/앱을 iOS·Android로 빌드·배포하는 upplz 워크플로우 스킬 모음(베타1: 맥 로컬 빌드/Docker 하네스).
 
 ## 스킬
-- `upplz-onboard` — 최초 배포(Apple 셋업 → 첫 빌드/업로드)
-- `upplz-build` — 반복 빌드→업로드→보고
+- `upplz-upload-build-only` — 테스트용 순수 빌드→스토어 업로드(최초 배포 셋업 게이트 포함)
+- `upplz-upload` — 출시용: 메타데이터·아이콘·스크린샷 점검·갱신 + 빌드→업로드(풀 체인)
 - `upplz-metadata` — 스토어 메타데이터 pull/apply
 - `upplz-icon` — 아이콘 생성·갱신
 - `upplz-screenshot` — 스크린샷 생성·프레임
-- `upplz-release` — 빌드부터 종합처리(풀 체인)
 
 ## 설치
 
