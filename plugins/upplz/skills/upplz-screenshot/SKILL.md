@@ -10,7 +10,7 @@ description: 앱 스토어용 스크린샷을 생성하고 디바이스 프레�
 - 스토어 스크린샷을 새로 만들거나 갱신할 때.
 
 ## Routing (첫 단계, 필수)
-`${CLAUDE_PLUGIN_ROOT}/references/routing.md` 로드 + **projectType 확인**. iOS 캡처는 맥 필요(비맥이면 베타2 게이트).
+`${CLAUDE_PLUGIN_ROOT}/references/routing.md` 로드 + **projectType 확인**. iOS 캡처는 맥 필요(비맥이면 iOS 맥 전용 게이트).
 
 ## Process
 projectType으로 캡처 방법을 분기한다:

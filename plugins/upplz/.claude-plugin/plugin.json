@@ -1,18 +1,18 @@
 {
   "name": "upplz",
-  "version": "2026.7.2",
-  "description": "웹 게임/앱을 iOS·Android(베타1: 맥 로컬 빌드/Docker 하네스)로 빌드·배포하는 upplz 워크플로우 스킬 모음. 테스트 업로드(빌드만)·출시 업로드(메타·아이콘·스샷 점검 포함)·메타데이터·아이콘·스크린샷. 원격 upplz MCP 서버 연결을 번들한다.",
+  "version": "2026.9.2",
+  "description": "웹 게임/앱을 iOS(맥 로컬 빌드)·Android(맥·윈도 로컬 Docker 하네스)로 빌드·배포하는 upplz 워크플로우 스킬 모음. 테스트 업로드(빌드만)·출시 업로드(메타·아이콘·스샷 점검 포함)·메타데이터·아이콘·스크린샷. 원격 upplz MCP 서버 연결을 번들한다.",
   "userConfig": {
     "api_key": {
       "type": "string",
       "title": "Upplz API Key",
-      "description": "upplz 대시보드 설정 페이지에서 발급받은 본인 API 키. 설치 시 안전 저장소에 저장됩니다.",
+      "description": "upplz 대시보드의 프로젝트 페이지에서 발급받은 프로젝트 API 키(키 1개 = 프로젝트 1개). 설치 시 안전 저장소에 저장됩니다.",
       "sensitive": true
     },
     "api_endpoint": {
       "type": "string",
       "title": "Upplz MCP Endpoint",
-      "description": "upplz MCP 서버 주소. 대시보드 설정 페이지에서 안내받은 실제 엔드포인트를 입력하세요.",
+      "description": "upplz MCP 서버 주소. 대시보드 프로젝트 페이지에서 안내받은 실제 엔드포인트를 입력하세요.",
       "default": "https://YOUR-UPPLZ-ENDPOINT"
     }
   },

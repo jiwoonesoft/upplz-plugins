@@ -1,6 +1,6 @@
 # upplz Claude Code 플러그인
 
-웹 게임/앱을 iOS·Android로 빌드·배포하는 upplz 워크플로우 스킬 모음(베타1: 맥 로컬 빌드/Docker 하네스).
+웹 게임/앱을 iOS·Android로 빌드·배포하는 upplz 워크플로우 스킬 모음(iOS 는 맥 로컬 빌드, Android 는 맥·윈도 로컬 Docker 하네스).
 
 ## 스킬
 - `upplz-upload-build-only` — 테스트용 순수 빌드→스토어 업로드(최초 배포 셋업 게이트 포함)
@@ -8,6 +8,12 @@
 - `upplz-metadata` — 스토어 메타데이터 pull/apply
 - `upplz-icon` — 아이콘 생성·갱신
 - `upplz-screenshot` — 스크린샷 생성·프레임
+
+## 커맨드
+- `/upplz:init` — **배포 설정 원스톱**. 서버 셋업 상태(`get_setup_status`)와 이 머신의 로컬 상태를 함께 보고 남은 설정을 끝까지 처리한다. `.p8`·Play Service Account 는 **파일 경로만** 받아(본문을 읽지 않는다) 반환된 스크립트가 인증서 저장소에 암호화해 넣는다. 협업자는 owner 전용 4단계(공유 자산 등록·초기화)만 owner 에게 요청하고 빌드·업로드·메타데이터까지 진행한다. 절차는 `references/first-time-setup.md` 하나를 upload 계열 스킬과 공유한다.
+
+## 온보딩 순서
+회원가입 → **프로젝트 생성**(대시보드) → **키 발급**(프로젝트 페이지) → 플러그인 설치·MCP 셋업 → `/upplz:init` → 배포.
 
 ## 설치
 
@@ -21,7 +27,7 @@
 /reload-plugins
 ```
 
-배포자용 상세(전용 저장소 레이아웃·marketplace.json·버전 갱신·엔드포인트 주의)는 [DISTRIBUTION.md](./DISTRIBUTION.md) 참조.
+퍼블리싱 담당자용 상세(전용 저장소 레이아웃·marketplace.json·버전 갱신·엔드포인트 주의)는 [DISTRIBUTION.md](./DISTRIBUTION.md) 참조.
 
 ### 개발/내부 테스트
 마켓플레이스 없이 로컬 경로로 로드(`marketplace.json` 불필요, plugin.json만):
@@ -35,9 +41,11 @@ claude --plugin-dir /경로/upplz.git/plugin
 
 ## 연결·인증
 - 플러그인이 원격 upplz MCP 서버 연결을 번들한다(`plugin.json`의 `mcpServers`, Streamable HTTP).
-- 인증: `Authorization: Bearer <API Key>`. API 키는 upplz 대시보드 설정 페이지에서 발급.
+- 인증: `Authorization: Bearer <API Key>`. API 키는 upplz 대시보드의 **프로젝트 페이지**에서 발급한다.
+- **키 1개 = 프로젝트 1개.** 플러그인 설정은 설치당 키 하나만 갖는다 — 다른 프로젝트를 배포하려면 `/plugin` → upplz 설정에서 그 프로젝트의 키로 교체해야 한다(여러 프로젝트 동시 연결 불가).
 - 스킬은 다른 파일을 `${CLAUDE_PLUGIN_ROOT}/references/...` 로 참조한다(플러그인은 캐시에 복사되므로 이 변수 필수).
 
 ## 전제
-- upplz MCP 서버 접속(원격) — 금고·Apple 오케스트레이션·빌드 스크립트 제공.
-- 맥 로컬: Xcode/fastlane/ImageMagick 등 빌드 toolchain(스킬이 설치 안내).
+- upplz MCP 서버 접속(원격) — 프로젝트 식별자·비밀번호 보관과 빌드·업로드·등록 스크립트 제공(서버는 Apple·Google 을 직접 부르지 않는다).
+- 인증서 저장소(owner 소유 private GitHub)의 collaborator 권한 — 인증서·프로파일·keystore·Apple 팀 키·Play Service Account 가 모두 여기 있다.
+- 로컬 toolchain(스킬이 설치 안내): iOS 는 맥의 Xcode/fastlane/openssl(ImageMagick 은 아이콘·프레임 합성 시), Android 는 Docker(`web-game-android` 이미지) — 윈도는 Git Bash + Docker Desktop.

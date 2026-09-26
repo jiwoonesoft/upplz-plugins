@@ -1,6 +1,6 @@
 # upplz 플러그인 정식 배포 가이드
 
-고객에게 `upplz` 플러그인을 배포하는 방법. 설치 한 번으로 **스킬 6개 + 원격 MCP 서버 연결 + API 키 구성**이 함께 완료된다.
+고객에게 `upplz` 플러그인(현재 `2026.9.1`)을 배포하는 방법. 설치 한 번으로 **스킬 5개 + 커맨드 `/upplz:init` + 원격 MCP 서버 연결 + 프로젝트 API 키 구성**이 함께 완료된다.
 
 ## 배포 채널: 공개 플러그인 전용 저장소
 
@@ -15,6 +15,7 @@ upplz-plugins/                       # 공개 git 저장소 (마켓플레이스)
 └── plugins/
     └── upplz/                       # 이 저장소의 plugin/ 내용을 그대로 복사
         ├── .claude-plugin/plugin.json
+        ├── commands/
         ├── skills/
         ├── references/
         ├── README.md
@@ -35,7 +36,7 @@ upplz-plugins/                       # 공개 git 저장소 (마켓플레이스)
       "name": "upplz",
       "source": "./plugins/upplz",
       "description": "온보딩·빌드·메타데이터·아이콘·스크린샷·종합처리 + 원격 MCP 연결 번들",
-      "version": "0.1.3"
+      "version": "2026.9.1"
     }
   ]
 }
@@ -54,11 +55,16 @@ upplz-plugins/                       # 공개 git 저장소 (마켓플레이스)
 
 # 3. 완료 후 반영
 /reload-plugins
+
+# 4. 배포 설정 시작 (프로젝트당 1회)
+/upplz:init
 ```
 
 - 설치 시 `plugin.json`의 `userConfig`에 따라 **Upplz API Key**를 물어 keychain에 안전 저장한다(`sensitive: true`).
-- 저장된 값은 번들 MCP 서버의 `Authorization: Bearer ${user_config.api_key}` 헤더로 주입된다. 서버는 이 키를 해시 조회해 `customerId`를 확정한다(`src/mcp/auth.ts`).
-- **API 키 발급**: 고객은 upplz 대시보드(설정 URL / `create_upload_link`)에서 본인 키를 먼저 발급받아야 한다.
+- 저장된 값은 번들 MCP 서버의 `Authorization: Bearer ${user_config.api_key}` 헤더로 주입된다. 서버는 이 키를 해시 조회해 **`customerId`·`projectId`·역할(`owner`|`collaborator`)을 확정**한다(`src/mcp/auth.ts`) — 도구는 LLM 입력이 아니라 이 값만 신뢰한다.
+- **API 키 발급**: 고객은 대시보드에서 **프로젝트를 먼저 만들고 그 프로젝트 페이지에서 키를 발급**받아야 한다.
+- **키 1개 = 프로젝트 1개**: `userConfig`는 설치당 키 하나만 갖는다. 프로젝트를 바꾸려면 `/plugin` → upplz 설정에서 키를 교체한다.
+- **설치 후 `/upplz:init`**: 배포에 필요한 나머지 설정(Apple 크레덴셜·Bundle ID·match 저장소·비밀번호·로컬 스캐폴드)은 이 커맨드가 프로젝트당 1회 안내·처리한다.
 
 ## 버전 업데이트 배포
 
@@ -73,9 +79,13 @@ upplz-plugins/                       # 공개 git 저장소 (마켓플레이스)
 
 `plugin.json`의 `api_endpoint` 기본값은 플레이스홀더(`https://YOUR-UPPLZ-ENDPOINT`)다 — **실제 엔드포인트 주소는 공개 저장소에 박지 않는다**(개인/내부 인프라 노출 방지). 실제 주소는 별도(로컬 메모리·온보딩 채널)로 관리한다.
 
-- 고객은 설치 시 `userConfig` 프롬프트에서, upplz 온보딩(설정 URL/대시보드)으로 안내받은 **실제 엔드포인트**를 입력한다.
+- 고객은 설치 시 `userConfig` 프롬프트에서, upplz 온보딩(대시보드 **프로젝트 페이지**)으로 안내받은 **실제 엔드포인트**를 입력한다.
 - 정식/대규모 배포용 **안정적 프로덕션 엔드포인트**(고정 도메인·이중화)가 정해지면 기본값으로 교체할 수 있다. 개인 머신 주소는 공개 기본값으로 두지 않는다.
 - Streamable-HTTP는 헤드리스/대화형 인증(MFA·패스프레이즈 프롬프트) 불가 — 인증은 Bearer 토큰(API 키) 단일 경로를 유지한다.
+
+## 서버 env 전제
+
+플러그인이 연결하는 upplz 서버에 필요한 값은 `DATABASE_URL`·`ENCRYPTION_KEY`(필수)와 `MCP_PORT`(선택)뿐이다 — 브라우저 크레덴셜 업로드 폼(Upload 서비스)은 2026-09-25 에 삭제돼 공개 URL·포트 설정이 없다. 전체 목록은 루트 `.env.example` 참조.
 
 ## 개발/내부 테스트 (배포 아님)
 

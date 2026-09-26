@@ -14,7 +14,7 @@ description: 앱 아이콘을 생성하거나 교체할 때 사용. 소스 이�
 - 앱 아이콘을 처음 넣거나 교체할 때(기존 이미지 사용 또는 새로 생성 모두 포함).
 
 ## Routing (첫 단계, 필수)
-`${CLAUDE_PLUGIN_ROOT}/references/routing.md` 로드. 리사이즈는 로컬 ImageMagick(맥/윈도 무관하나, 반영을 위한 재빌드는 iOS 규칙 적용 — 비맥이면 재빌드 단계에서 베타2 게이트).
+`${CLAUDE_PLUGIN_ROOT}/references/routing.md` 로드. 리사이즈는 로컬 ImageMagick(맥/윈도 무관하나, 반영을 위한 재빌드는 iOS 규칙 적용 — 비맥이면 재빌드 단계에서 iOS 맥 전용 게이트).
 
 ## Process
 1. 소스 확보:
