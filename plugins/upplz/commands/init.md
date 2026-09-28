@@ -43,10 +43,13 @@ allowed-tools 를 일부러 두지 않는다 — 기본값은 대화 세션의 �
    ```bash
    uname -s                                   # 맥 여부(routing.md) — 윈도는 Git Bash 에서 MINGW*/MSYS*
    ls -d ios android 2>/dev/null || echo "스캐폴드 없음"
-   for c in xcodebuild fastlane ruby docker gh openssl jq node; do
+   for c in brew xcodebuild fastlane ruby pod flutter docker gh openssl jq node magick; do
      command -v "$c" >/dev/null 2>&1 && echo "$c: 있음" || echo "$c: 없음"
    done
-   command -v docker >/dev/null 2>&1 && docker images -q web-game-android 2>/dev/null || echo "이미지 확인 불가"
+   XV=$(xcodebuild -version 2>/dev/null | head -1); [ -n "$XV" ] && echo "Xcode: $XV" || echo "Xcode: 없음(또는 Command Line Tools 만 있음)"
+   ruby -rxcodeproj -e 'exit 0' 2>/dev/null && echo "xcodeproj: 있음" || echo "xcodeproj: 없음"
+   docker info >/dev/null 2>&1 && echo "docker 데몬: 실행 중" || echo "docker 데몬: 꺼짐 또는 없음"
+   docker image inspect web-game-android --format 'web-game-android: {{.Architecture}}' 2>/dev/null || echo "web-game-android: 없음"
    grep -hs applicationId android/app/build.gradle android/app/build.gradle.kts
    grep -hs appId capacitor.config.json capacitor.config.ts capacitor.config.js
    true                                       # 패키지명은 없을 수도 있다 — 여기서 멈추지 않는다
@@ -58,7 +61,7 @@ allowed-tools 를 일부러 두지 않는다 — 기본값은 대화 세션의 �
 
    읽는 법:
    - **스캐폴드**(`ios/`·`android/`) 존재 → 스캐폴드 단계 축소(first-time-setup.md 판정 규칙).
-   - **toolchain**: iOS는 `xcodebuild`·`fastlane`·`ruby`, Android는 `docker`+`web-game-android` 이미지, 공통으로 **`openssl`**(인증서 저장소의 암호화 파일을 푼다 — 맥 기본 LibreSSL·Homebrew OpenSSL·Git for Windows 의 openssl 모두 된다). `jq` 는 없어도 된다(Android SA 의 `client_email` 을 뽑을 때 `node` 로 대신한다). **`node` 는 Android owner 에게 필수**다 — `register_android_credentials` 스크립트가 키 파일을 `node` 로 확인한다(Claude Code 네이티브 설치판에는 node 가 따라오지 않으므로 "Claude Code 가 있으니 있다" 고 가정하지 않는다 — 없으면 https://nodejs.org 의 LTS 설치를 안내). "없음"이면 설치를 안내하되 **여기서 멈추지 않는다**(최종 점검은 스크립트의 preflight 가 한다).
+   - **toolchain**: iOS는 Xcode(`xcodebuild -version` 이 버전을 내야 한다 — Command Line Tools 만으로는 안 된다)·`fastlane`·xcodeproj, projectType 에 따라 `node`(web-capacitor)·`pod`(native-ios). Android는 docker 데몬 + `web-game-android` 이미지 — **`amd64` 여야 한다**(`arm64` 면 다시 빌드한다). 공통으로 **`openssl`**(인증서 저장소의 암호화 파일을 푼다 — 맥 기본 LibreSSL·Homebrew OpenSSL·Git for Windows 의 openssl 모두 된다). `flutter` 는 flutter 프로젝트만, `magick`(ImageMagick)은 아이콘·스크린샷 프레임을 만들 때만 필요하다. `jq` 는 없어도 된다(Android SA 의 `client_email` 을 뽑을 때 `node` 로 대신한다). **`node` 는 Android owner 에게 필수**다 — `register_android_credentials` 스크립트가 키 파일을 `node` 로 확인한다(Claude Code 네이티브 설치판에는 node 가 따라오지 않으므로 "Claude Code 가 있으니 있다" 고 가정하지 않는다). 점검 단계에서는 결과만 기록하고 멈추지 않는다 — **빠진 것은 로컬 선행 단계의 빌드 환경 준비(first-time-setup.md iOS ② / Android 2)에서 「빌드 환경 설치」대로 에이전트가 설치한다.** 설치 방법만 알려 주고 사용자에게 맡기지 않는다.
    - **패키지명**(`applicationId`/`appId`): 값이 나오면 이후 `get_setup_status({ platform: "android", packageName })`·`setup_android_keystore`·`start_build` 에 **그대로 쓴다**. 아무것도 안 나오면 "확인 못 함"으로 두고 넘어간다 — 스캐폴드 전에는 없는 것이 정상이며, 이 단계에서 사용자에게 묻지 않는다(first-time-setup.md Android 3 에서 정한다).
    - **`gh`**: 인증서 저장소(private) clone 자격 확인용. 없으면 git credential helper로도 되므로 "확인 못 함"으로 둔다.
    - **미push**: `UNPUSHED_UNKNOWN`이면 업스트림도 `origin/HEAD`도 없다는 뜻이다 — **막지 말고** "미push 여부를 확인하지 못했습니다. push가 안 되어 있으면 이전 코드로 빌드됩니다"라고 알린 뒤 진행한다. 커밋 목록이 나오면 push를 권한다.
@@ -88,7 +91,7 @@ owner 전용 도구는 **21개 중 4개**다(서버 `requireOwner` 가드 기준
 
 진행 방법:
 
-1. **로컬 선행 단계**(first-time-setup.md ①–⑤ / Android 1–4)를 먼저 수행한다 — 저장소 분석, 빌드 환경 준비(Xcode·fastlane·ruby·openssl 설치), 앱 정보 확인, 스캐폴드, 커밋 push. 역할 제한이 없는 구간이다.
+1. **로컬 선행 단계**(first-time-setup.md ①–⑤ / Android 1–4)를 먼저 수행한다 — 저장소 분석, 빌드 환경 준비(빠진 도구는 에이전트가 설치 — first-time-setup.md 「빌드 환경 설치」), 앱 정보 확인, 스캐폴드, 커밋 push. 역할 제한이 없는 구간이다.
 2. **`nextStep` 루프를 owner 와 똑같이 돈다** — 단계를 하나 끝낼 때마다 `get_setup_status`를 다시 호출해 다음 `nextStep`을 받는다. 막힐 때까지 계속 진행한다.
    - `register_bundle_id`(⑦) / `start_build`(빌드) → **직접 수행한다.** ⑦ 다음의 ASC 웹 앱 레코드 생성(수동)은 **owner 의 App Store Connect 팀에 앱을 만들 수 있는 역할(App Manager 이상)로 초대돼 있어야** 한다 — 초대가 없으면 owner 에게 앱 레코드 생성만 요청하고 그동안 다음 단계로 간다(앱 레코드는 업로드 전에만 있으면 된다).
    - `register_ios_credentials`(⑥) / `setup_match_repo`(⑧) → **owner 전용이라 여기서 멈춘다.** 3을 따른다.

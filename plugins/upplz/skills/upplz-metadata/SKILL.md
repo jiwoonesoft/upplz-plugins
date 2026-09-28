@@ -10,7 +10,7 @@ description: 앱 스토어 메타데이터(설명·키워드·릴리스 노트·
 - 앱 설명/키워드/릴리스 노트/스크린샷 등 스토어 리스팅만 바꿀 때.
 
 ## Routing (첫 단계, 필수)
-`${CLAUDE_PLUGIN_ROOT}/references/routing.md` 로드해 대상(iOS/Android)을 확정한다. iOS는 로컬 fastlane deliver(맥 필요, 비맥이면 iOS 맥 전용 게이트). Android는 `pull_android_metadata`/`apply_android_metadata` 정식 도구로 로컬 Docker(`web-game-android`, fastlane supply)를 통해 처리한다(맥·윈도 공통 — 빌드 하네스가 이미 존재하므로 iOS와 동일한 pull→편집→apply 흐름).
+`${CLAUDE_PLUGIN_ROOT}/references/routing.md` 로드해 대상(iOS/Android)을 확정한다. iOS는 로컬 fastlane deliver(맥 필요, 비맥이면 iOS 맥 전용 게이트 — fastlane·ImageMagick(frameit 배경)이 없으면 에이전트가 설치하고 다시 실행한다, routing.md 「도구 미설치」). Android는 `pull_android_metadata`/`apply_android_metadata` 정식 도구로 로컬 Docker(`web-game-android`, fastlane supply)를 통해 처리한다(맥·윈도 공통 — 빌드 하네스가 이미 존재하므로 iOS와 동일한 pull→편집→apply 흐름).
 
 ## Process
 

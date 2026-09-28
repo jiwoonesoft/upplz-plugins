@@ -48,4 +48,4 @@ claude --plugin-dir /경로/upplz.git/plugin
 ## 전제
 - upplz MCP 서버 접속(원격) — 프로젝트 식별자·비밀번호 보관과 빌드·업로드·등록 스크립트 제공(서버는 Apple·Google 을 직접 부르지 않는다).
 - 인증서 저장소(owner 소유 private GitHub)의 collaborator 권한 — 인증서·프로파일·keystore·Apple 팀 키·Play Service Account 가 모두 여기 있다.
-- 로컬 toolchain(스킬이 설치 안내): iOS 는 맥의 Xcode/fastlane/openssl(ImageMagick 은 아이콘·프레임 합성 시), Android 는 Docker(`web-game-android` 이미지) — 윈도는 Git Bash + Docker Desktop.
+- 로컬 toolchain(**빠진 것은 에이전트가 설치한다** — 비밀번호·GUI 확인·로그인만 사용자에게 요청): iOS 는 맥의 Xcode/fastlane/openssl(ImageMagick 은 아이콘·프레임 합성 시), Android 는 Docker(`web-game-android` 이미지 — 플러그인에 든 `docker/android/Dockerfile` 로 만든다) — 윈도는 Git Bash + Docker Desktop. 절차는 `references/first-time-setup.md` 「빌드 환경 설치」.

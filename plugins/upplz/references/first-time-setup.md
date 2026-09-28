@@ -36,6 +36,47 @@
 2. 응답의 스크립트를 **잘라내지 말고 통째로** 실행한다. 스크립트의 프롤로그가 openssl·비밀번호·저장소 접근을 확인하고(`[preflight]`), 인증서 저장소를 임시 디렉토리에 shallow clone 한 뒤(`[fetch]`), 필요한 파일만 풀어(`[decrypt]`) 쓰고, 끝나면(성공이든 실패든) `trap` 으로 임시 디렉토리를 지운다.
 3. 실행 후 `unset MATCH_PASSWORD` 한다. 값을 파일·git·로그에 남기지 않는다.
 4. 멈췄을 때: `[fetch] 인증서 저장소에 … 가 없습니다` → owner 가 그 메시지가 지목한 등록 도구를 실행해야 한다 / `[decrypt]` → 먼저 응답 `env.MATCH_PASSWORD` 를 그대로 export 했는지 확인하고, 맞으면 owner 가 그 파일의 등록 도구를 다시 실행해야 한다(같은 저장소를 다른 upplz 프로젝트도 쓰면 대시보드 '다른 프로젝트에서 복사' 로 비밀번호를 맞춘다 — `troubleshooting.passwordMismatch`) / `[preflight] 인증서 저장소에 접근할 수 없습니다` → 사용자 본인 git 자격 문제거나 collaborator 가 아니다(`gh auth login`, owner 에게 collaborator 추가 요청). 응답 `troubleshooting` 의 문구를 그대로 전달한다.
+5. **도구가 없어 멈췄을 때**(`[preflight] … 미설치` 줄, preflightScript 의 `✗` 줄, `command not found`) → 사용자에게 설치를 맡기지 않는다. 아래 「빌드 환경 설치」대로 **에이전트가 설치하고 같은 스크립트를 처음부터 다시 실행**한다(3 에서 unset 했다면 응답 `env.MATCH_PASSWORD` 를 다시 export 한 뒤). 반환된 스크립트를 그대로 다시 돌리는 것이라 하네스 우회가 아니다.
+
+## 빌드 환경 설치 — 에이전트가 설치한다
+
+**설치 방법을 알려 주고 끝내지 않는다.** 점검에서 빠진 도구가 나오면 무엇을 왜 설치하는지 한 줄로 알리고 **곧바로 설치 명령을 실행**한다. 실행 승인은 Claude Code 의 도구 권한 확인이 맡으므로 "설치할까요?" 를 따로 묻지 않는다. 설치가 끝나면 같은 점검(멈췄던 스크립트라면 그 스크립트)을 다시 돌려 `✓` 를 확인하고 이어서 진행한다.
+
+단 **1 GB 를 넘거나 시스템 구성요소를 까는 것**(Docker Desktop·Flutter SDK·`web-game-android` 이미지 빌드 — Android SDK 를 받아 수 GB)은 무엇을 얼마나 받는지(용량·걸리는 시간, Docker Desktop 은 조직 규모에 따라 유료 구독 조건이 있는 약관)를 한 줄로 먼저 알리고 실행한다. 권한 자동 허용 세션에서는 도구 권한 확인이 동의를 대신하지 못하기 때문이다.
+
+- **빠진 것을 모아 한 번에 설치한다.** brew 패키지는 한 명령으로 묶는다(예: `brew install fastlane cocoapods node`). 오래 걸리는 것(Xcode 다운로드, Docker 이미지 빌드)은 기다리는 동안 다른 준비를 이어 간다.
+- **에이전트가 할 수 없는 것만 사용자에게 넘긴다** — 관리자 비밀번호(`sudo`), GUI 확인(App Store 「받기」, 설치 대화상자, 약관 동의), 로그인(Apple ID, `gh auth login`). 에이전트의 Bash 는 비밀번호·대화형 입력을 받을 수 없다. 이때도 "직접 설치하세요" 가 아니라 **터미널 앱에 붙여 넣을 명령 한 줄**이나 **누를 버튼 하나**만 요청하고, 사용자가 끝냈다고 하면 에이전트가 다시 점검한다.
+- `sudo` 가 필요한 설치 방법은 고르지 않는다(시스템 ruby 에 `gem install fastlane` 등). 아래 표의 방법은 원칙적으로 비밀번호 없이 되지만 **Docker Desktop 은 예외가 있다**(그 행 참조).
+- 설치 직후 명령을 못 찾으면 PATH 문제다. 에이전트의 Bash 는 호출마다 새 셸이라 `eval` 은 **그 호출 안에서만** 유효하다 — Homebrew 는 `shellenv` 줄을 `~/.zprofile` 에 넣어 두면 다음 호출부터 잡히고, 같은 호출에서 이어 쓸 때만 명령 앞에 `eval "$(/opt/homebrew/bin/brew shellenv)" &&` 를 붙인다. 윈도(winget)는 Claude Code 를 다시 시작해야 새 PATH 가 보인다.
+
+**맥**
+
+| 도구 | 필요한 곳 | 확인 | 에이전트가 실행 | 사용자에게 넘기는 것 |
+|---|---|---|---|---|
+| Homebrew | 아래 brew 설치 전부 | `command -v brew` | 설치돼 있는데 PATH 에 없으면(Apple Silicon `/opt/homebrew/bin/brew`, 인텔 `/usr/local/bin/brew` 존재) `echo 'eval "$(<그 경로> shellenv)"' >> ~/.zprofile` 로 등록한다(위 PATH 항목) | 아예 없으면 설치 스크립트가 관리자 비밀번호를 묻는다 → 터미널 앱에서 `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"` |
+| Command Line Tools | iOS(Xcode 를 설치하면 필요 없다 — 둘 다 없으면 이 행은 건너뛰고 Xcode 행으로) | `xcode-select -p` | `xcode-select --install` | 뜨는 대화상자에서 「설치」 |
+| Xcode | iOS | `xcodebuild -version` | `open "macappstore://apps.apple.com/app/id497799835"` 로 App Store 의 Xcode 페이지를 연다(수 GB — 받는 동안 다른 준비를 한다) | 「받기」. 설치가 끝나면 터미널 앱에서 `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer && sudo xcodebuild -license accept && sudo xcodebuild -runFirstLaunch`(첫 실행 추가 컴포넌트). 시뮬레이터가 필요한 스크린샷(`generate_native_screenshots`)은 `xcodebuild -downloadPlatform iOS` 도 필요할 수 있다(에이전트 실행, 수 GB) |
+| fastlane | iOS | `fastlane --version` | `brew install fastlane` | — |
+| xcodeproj (ruby gem) | iOS(서명 패치) | `ruby -rxcodeproj -e 'exit 0'` | `gem install --user-install xcodeproj` | — |
+| CocoaPods | iOS `native-ios` | `pod --version` | `brew install cocoapods` | — |
+| Flutter SDK | `flutter` | `flutter --version` | `brew install --cask flutter` | — |
+| Node.js | `web-capacitor` 빌드, Android owner(키 파일 확인) | `node --version` | `brew install node` | — |
+| openssl | 공통 | `openssl version` | 설치하지 않는다 — 맥 기본 LibreSSL 로 충분하다 | — |
+| gh | 인증서 저장소 clone 자격(선택 — git credential helper 로도 된다) | `gh --version` | `brew install gh` | 로그인: 터미널 앱에서 `gh auth login` |
+| ImageMagick | 아이콘·프레임 합성 | `magick -version` | `brew install imagemagick`(SVG 고품질 래스터화는 `librsvg` 도) | — |
+| Docker Desktop | Android(macOS 14 이상) | `docker info` | 없으면 `brew install --cask docker-desktop`. 설치돼 있는데 데몬이 꺼져 있으면 `open -a Docker` 후 `docker info` 가 될 때까지 최대 2분 기다린다 | 첫 실행의 약관 동의·권한 허용(관리자 비밀번호). **brew 가 `/usr/local/bin/kubectl` 심링크 때문에 관리자 비밀번호를 물으면**(`/usr/local/bin` 이 쓰기 불가인 Apple Silicon 새 맥에서 흔하다 — 에이전트 쪽에서는 `sudo: a terminal is required` 로 실패한다) 같은 `brew install --cask docker-desktop` 을 터미널 앱에서 실행하도록 넘긴다 |
+| `web-game-android` 이미지 | Android | `docker image inspect web-game-android --format '{{.Architecture}}'` 가 `amd64` | `docker build --platform linux/amd64 -t web-game-android "${CLAUDE_PLUGIN_ROOT}/docker/android"`(수 분 — 백그라운드로 돌린다). arm64 로 나오면 같은 명령으로 다시 만든다 | — |
+
+**윈도(Git Bash, Android 만 — 미검증)**
+
+| 도구 | 확인 | 에이전트가 실행 | 사용자에게 넘기는 것 |
+|---|---|---|---|
+| Docker Desktop | `docker info` | 없으면 `winget install -e --id Docker.DockerDesktop`. 데몬이 꺼져 있으면 `"/c/Program Files/Docker/Docker/Docker Desktop.exe" &` 후 `docker info` 를 기다린다 | UAC 허용, 재부팅·WSL 2 설치 요청이 나오면 그 절차 |
+| Node.js(owner) | `node --version` | `winget install -e --id OpenJS.NodeJS.LTS` | UAC 허용. 설치 뒤 Claude Code 재시작(새 PATH) |
+| openssl | `openssl version` | 설치하지 않는다 — Git for Windows 에 들어 있다 | — |
+| `web-game-android` 이미지 | 맥과 같다 | 맥과 같은 `docker build` 명령 | — |
+
+**이미지 빌드 경로**: `${CLAUDE_PLUGIN_ROOT}/docker/android` 는 이 플러그인에 들어 있는 Dockerfile 폴더다. 경로가 치환되지 않은 채로 보이면 `ls -d ~/.claude/plugins/cache/*/upplz/*/docker/android | tail -1` 로 찾는다. 둘 다 없으면 플러그인이 2026.9.3 미만이다(Dockerfile 이 들어 있지 않다) — `/plugin marketplace update upplz-tools` 로 갱신한 뒤 다시 찾는다.
 
 ## iOS 최초 셋업
 
@@ -61,7 +102,7 @@ owner 가 아니면(`team.role: "collaborator"`) 1·2·3 모두 owner가 준비�
 ### 절차
 
 1. `analyze_repository` — repoType/framework/hasCapacitor/hasMobileSupport 확인(도구가 projectType을 직접 반환하지 않는다). 이 결과와 `ios/` 디렉토리 존재 여부로 에이전트가 projectType(web-capacitor/native-ios/flutter/react-native)을 판단한다.
-2. 빌드 환경 확인 — 맥에 Xcode·Command Line Tools·ruby·fastlane·openssl(맥 기본 LibreSSL 로 충분) 필요(미설치 시 설치 안내). 최종 점검은 각 스크립트의 preflight 가 수행한다.
+2. 빌드 환경 준비 — 맥에 Xcode·Command Line Tools·fastlane·xcodeproj·openssl(맥 기본 LibreSSL 로 충분)과 projectType 별 도구(`web-capacitor` 는 Node.js, `native-ios` 는 CocoaPods, `flutter` 는 Flutter SDK)가 필요하다. 빠진 것은 위 「빌드 환경 설치」대로 **에이전트가 설치한다**. 최종 점검은 각 스크립트의 preflight 가 하며, 거기서 `✗` 가 나와도 같은 방식으로 설치하고 다시 실행한다.
 3. **앱 정보 질문** — `get_setup_status`의 `bundleId`가 `null`이면 사용자에게 **앱 이름**과 **Bundle ID**(역도메인, 예 `com.yourname.appname`; 영숫자·하이픈·점만)를 묻는다. `bundleId`가 이미 있으면 그 값을 쓰고 묻지 않는다. 이 값이 ④·⑦·⑨·빌드에서 계속 쓰인다.
 4. `setup_project` — 로컬 스캐폴드/설정(web-capacitor 전용, ③의 Bundle ID·앱 이름 사용, `iconUrl`로 초기 아이콘 지정 가능). native-ios/flutter/react-native는 건너뛴다.
 5. (수동) 변경분 커밋·push — **push하지 않으면 start_build가 원격의 이전 코드로 빌드된다.**
@@ -93,7 +134,7 @@ Android는 Apple 크레덴셜과 분리된 경로다. 빌드·업로드는 사�
 > **인증서 저장소는 플랫폼 공통이다.** 시크릿 키 이름이 `ios/match-repo-url` 이지만 Android 도 같은 값을 읽는다 — iOS 를 이미 설정했다면 같은 저장소가 자동으로 쓰이고, Android 전용 프로젝트만 `matchRepoUrl` 파라미터로 한 번 등록하면 된다(`ios/` 접두사는 역사적 흔적이다).
 
 1. `analyze_repository` — repoType/framework/hasCapacitor/hasMobileSupport 확인(도구가 projectType을 직접 반환하지 않는다). 이 결과와 `android/` 디렉토리 존재 여부로 에이전트가 projectType(web-capacitor/native-android)을 판단한다.
-2. Docker 이미지 준비 확인 — `web-game-android` 이미지가 없으면 **`docker build --platform linux/amd64 -t web-game-android docker/android/`** 로 빌드하도록 안내한다. Apple Silicon 맥에서도 반드시 `--platform linux/amd64` 로 만든다 — 스크립트가 `--platform linux/amd64` 로 실행하므로, arm64 로 빌드된 옛 이미지는 맞는 이미지를 찾지 못해 pull 을 시도하다 실패한다. 최종 점검은 `start_build` 응답의 preflightScript 가 수행한다.
+2. 빌드 환경 준비 — Docker Desktop(데몬 실행 중)과 `web-game-android` 이미지(**amd64**), owner 면 Node.js 가 필요하다. 빠진 것은 위 「빌드 환경 설치」대로 **에이전트가 설치·실행·빌드한다** — 이미지는 이 플러그인에 들어 있는 Dockerfile 로 `docker build --platform linux/amd64 -t web-game-android "${CLAUDE_PLUGIN_ROOT}/docker/android"` 를 실행한다. Apple Silicon 맥에서도 반드시 `--platform linux/amd64` 로 만든다 — 스크립트가 `--platform linux/amd64` 로 실행하므로, arm64 로 빌드된 옛 이미지는 맞는 이미지를 찾지 못해 pull 을 시도하다 실패한다. 최종 점검은 `start_build` 응답의 preflightScript 가 하며, 거기서 `✗` 가 나와도 같은 방식으로 준비하고 다시 실행한다.
 3. `setup_project({ platform: "android", bundleId: packageName, packageName, appName })` — `bundleId`는 zod 스키마상 항상 필수(빠뜨리면 도구 호출이 거부됨)이므로 Android에서도 반드시 전달해야 하며, 보통 `packageName`과 동일한 값을 넣는다. Capacitor Android 플랫폼 스캐폴드(web-capacitor 전용, `packageName` 미지정 시 `bundleId` 값을 패키지명으로 대체 — `packageName` 명시를 권장). native-android는 이미 `android/`가 있으므로 건너뛴다. **packageName에 언더스코어(`_`)가 포함되면 `bundleId` 필드 형식(하이픈만 허용)과 달라 그대로 넣을 수 없음 — 이 경우 `bundleId`에는 언더스코어를 뺀 유효 값을 넣고 `packageName`을 별도 지정한다.**
 4. (수동) 변경분 커밋·push — **push하지 않으면 start_build가 원격의 이전 코드로 빌드된다.**
 5. `setup_android_keystore({ packageName, matchRepoUrl?, matchPassword? })` (**owner 전용**) — keystore 를 **인증서 저장소에 준비**하는 로컬 스크립트. 스크립트는 사용자 본인 git 자격으로 저장소를 받아 **3분기**로 동작한다: ① 저장소에 `android/<packageName>.keystore` 가 있으면 **프로젝트 비밀번호로 열어 보고 재사용** ② 이 머신에 옛 로컬 keystore 가 있으면 내용 그대로 저장소로 **이관**해 push ③ 둘 다 없으면 Docker 의 keytool 로 프로젝트 비밀번호를 써서 **생성**해 push. **기존 파일은 어느 경우에도 덮어쓰지 않는다** — Play 앱 서명(Play App Signing)을 쓰는 앱에서 이 keystore 는 **업로드 키**라 분실·유출 시 Play Console 의 업로드 키 재설정으로 **교체할 수 있지만**(앱 서명 키는 Google 이 보관), 재설정에는 Google 지원 절차와 시간이 들고 그동안 업로드가 막히며, **Play 앱 서명을 쓰지 않는 옛 앱**이라면 이 keystore 가 곧 앱 서명 키라 **교체 불가**다.

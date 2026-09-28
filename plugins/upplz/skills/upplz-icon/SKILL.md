@@ -20,7 +20,7 @@ description: 앱 아이콘을 생성하거나 교체할 때 사용. 소스 이�
 1. 소스 확보:
    - 사용자가 이미지를 제공하면 그대로 사용(URL 또는 로컬 경로, 1024x1024 이상 정사각 PNG 권장).
    - 없으면 앱에 맞는 아이콘을 SVG로 설계해 로컬에 저장하고 그 경로를 소스로 사용.
-2. `generate_app_icon({ iconSource, projectType, appiconsetPath? })` — 반환된 iconScript를 사용자 맥에서 실행. `appiconsetPath`는 optional — 자동 감지(`find .`) 실패 시에만 실제 `AppIcon.appiconset` 경로를 직접 지정. ImageMagick(magick)은 항상 필요 — 미설치 시 `brew install imagemagick`. SVG 소스는 `rsvg-convert`(brew install librsvg)가 있으면 우선 사용(선택, 고품질).
+2. `generate_app_icon({ iconSource, projectType, appiconsetPath? })` — 반환된 iconScript를 사용자 맥에서 실행. `appiconsetPath`는 optional — 자동 감지(`find .`) 실패 시에만 실제 `AppIcon.appiconset` 경로를 직접 지정. ImageMagick(magick)은 항상 필요 — 없으면 에이전트가 `brew install imagemagick` 을 실행하고 iconScript 를 다시 실행한다. SVG 소스는 `rsvg-convert`(`brew install librsvg`)가 있으면 우선 사용(선택, 고품질 — SVG 를 쓸 때는 함께 설치한다).
 3. appiconset 갱신 확인. 자동 감지가 실패해 실행 로그의 `[done] ... ($SETDIR)` 경로가 실제 에셋 카탈로그와 다르면(엉뚱한 위치에 생성됨), `appiconsetPath`에 실제 `AppIcon.appiconset` 경로를 지정해 재호출한다. 예: `pinfast-ios/Assets.xcassets/AppIcon.appiconset`.
 
 ## Verification

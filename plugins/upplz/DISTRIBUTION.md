@@ -1,6 +1,6 @@
 # upplz 플러그인 정식 배포 가이드
 
-고객에게 `upplz` 플러그인(현재 `2026.9.1`)을 배포하는 방법. 설치 한 번으로 **스킬 5개 + 커맨드 `/upplz:init` + 원격 MCP 서버 연결 + 프로젝트 API 키 구성**이 함께 완료된다.
+고객에게 `upplz` 플러그인(현재 `2026.9.3`)을 배포하는 방법. 설치 한 번으로 **스킬 5개 + 커맨드 `/upplz:init` + 원격 MCP 서버 연결 + 프로젝트 API 키 구성**이 함께 완료된다.
 
 ## 배포 채널: 공개 플러그인 전용 저장소
 
@@ -18,6 +18,7 @@ upplz-plugins/                       # 공개 git 저장소 (마켓플레이스)
         ├── commands/
         ├── skills/
         ├── references/
+        ├── docker/android/Dockerfile   # web-game-android 이미지(2026.9.3~)
         ├── README.md
         └── DISTRIBUTION.md
 ```
@@ -36,7 +37,7 @@ upplz-plugins/                       # 공개 git 저장소 (마켓플레이스)
       "name": "upplz",
       "source": "./plugins/upplz",
       "description": "온보딩·빌드·메타데이터·아이콘·스크린샷·종합처리 + 원격 MCP 연결 번들",
-      "version": "2026.9.1"
+      "version": "2026.9.3"
     }
   ]
 }
@@ -70,7 +71,7 @@ upplz-plugins/                       # 공개 git 저장소 (마켓플레이스)
 
 1. 본 저장소 `plugin/`에서 변경 → 리뷰/머지.
 2. `plugin.json`의 `version` 상향.
-3. 전용 저장소 `upplz-plugins`의 `plugins/upplz/`에 동기화 + `marketplace.json`의 `version` 반영 → push.
+3. 전용 저장소 `upplz-plugins`의 `plugins/upplz/`에 동기화(`rsync -a --delete plugin/ <upplz-plugins>/plugins/upplz/` — 2026.9.3 부터 Android 이미지의 **`docker/android/Dockerfile` 도 플러그인에 들어 있으므로** `docker/` 까지 같이 간다) + `marketplace.json`의 `version` 반영 → push.
 4. 고객은 `/plugin marketplace update upplz-tools` 후 재설치/갱신.
 
 > `userConfig`는 **설치 시점에만** 프롬프트된다. 업데이트만으로는 재입력되지 않으므로, 키 변경이 필요하면 재설치를 안내한다.
